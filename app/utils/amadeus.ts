@@ -81,4 +81,27 @@ export class AmadeusPlanner {
 
     return { processedOffers, processedOffersDictionary };
   }
+
+  async citySearch(keyword: string) {
+    /**
+     * A function to search for an airport by identifying keyword.
+     *
+     * @param keyword - The keyword to search for (e.g. "New York")
+     * @returns A list of airports that match the keyword.
+     */
+    const response = await this.amadeus.referenceData.locations.get({
+      subType: "AIRPORT",
+      keyword: keyword,
+    });
+
+    const processedResponse = response.data.map((airport: any) => ({
+      type: airport.type,
+      subType: airport.subType,
+      name: airport.name,
+      iataCode: airport.iataCode,
+      address: airport.address,
+    }));
+
+    return processedResponse;
+  }
 }
