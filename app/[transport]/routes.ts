@@ -1,5 +1,17 @@
 import { createMcpHandler } from "@vercel/mcp-adapter";
 import { z } from "zod";
+import { AmadeusPlanner } from "@/app/utils/amadeus";
+
+if (!process.env.AMADEUS_CLIENT_ID || !process.env.AMADEUS_CLIENT_SECRET) {
+  throw new Error(
+    "AMADEUS_CLIENT_ID and AMADEUS_CLIENT_SECRET environment variables are required"
+  );
+}
+
+const amadeus = new AmadeusPlanner(
+  process.env.AMADEUS_CLIENT_ID,
+  process.env.AMADEUS_CLIENT_SECRET
+);
 
 const handler = createMcpHandler(
   (server) => {
@@ -16,6 +28,16 @@ const handler = createMcpHandler(
         };
       }
     );
+
+    server.resource(
+        "airport",
+        "schema://airport-<airport-code>",
+        async uri => {
+
+            try{
+                const amadeusResponse = await amadeus.citySearch(uri.toString());
+            }
+        }
   },
   {
     // Optional server options
