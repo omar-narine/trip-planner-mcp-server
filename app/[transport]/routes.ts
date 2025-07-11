@@ -8,10 +8,14 @@ if (!process.env.AMADEUS_CLIENT_ID || !process.env.AMADEUS_CLIENT_SECRET) {
   );
 }
 
-const amadeus = new AmadeusPlanner(
-  process.env.AMADEUS_CLIENT_ID,
-  process.env.AMADEUS_CLIENT_SECRET
-);
+try {
+  const amadeus = new AmadeusPlanner(
+    process.env.AMADEUS_CLIENT_ID,
+    process.env.AMADEUS_CLIENT_SECRET
+  );
+} catch (error) {
+  console.error(error);
+}
 
 const handler = createMcpHandler(
   (server) => {
@@ -29,18 +33,29 @@ const handler = createMcpHandler(
       }
     );
 
-    server.resource(
-        "airport",
-        "schema://airport-<airport-code>",
-        async uri => {
-
-            try{
-                const amadeusResponse = await amadeus.citySearch(uri.toString());
-            }
-        }
+    // server.resource(
+    //   "airport",
+    //   "schema://airport-<airport-code>",
+    //   async (uri, extra) => {
+    //     const airportCode = uri.path.split("-")[1];
+    //     const amadeusResponse = await amadeus.citySearch(airportCode);
+    //   }
+    // );
   },
   {
     // Optional server options
+    capabilities: {
+      resources: {
+        airport: {
+          description: "Airport resource", // To be altered,
+        },
+      },
+      tools: {
+        roll_dice: {
+          description: "Rolls an N-sided die", // To be altered,
+        },
+      },
+    },
   },
   {
     // Optional redis config
